@@ -4,10 +4,10 @@ import hid
 import psutil
 
 VENDOR_ID = 0x3633  # DeepCool's Vendor ID
-PRODUCT_ID = 0  # to be updated in setup
-SENSOR = ""  # to be updated in setup
+PRODUCT_ID = 0x0002
+SENSOR = "k10temp"
 SHOW_TEMP = True
-SHOW_UTIL = True
+SHOW_UTIL = False
 INTERVAL = 2
 
 
@@ -71,18 +71,16 @@ def get_utils():
 
 
 try:
-    h = hid.device()
-    h.open(VENDOR_ID, PRODUCT_ID)
-    h.set_nonblocking(1)
-    h.write(get_data(mode="start"))
+    h = hid.Device(VENDOR_ID, PRODUCT_ID)
+    h.nonblocking = 1
+    h.write(bytes(get_data(mode="start")))
     while True:
-        h.set_nonblocking(1)
         if SHOW_TEMP:
-            h.write(get_temperature())
+            h.write(bytes(get_temperature()))
             time.sleep(INTERVAL)
 
         if SHOW_UTIL:
-            h.write(get_utils())
+            h.write(bytes(get_utils()))
             time.sleep(INTERVAL)
 except IOError as error:
     print(error)
